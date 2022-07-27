@@ -7,11 +7,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <hiredis/hiredis.h>
-#include "../deps/linenoise.h"
+#include "../deps/crossline.h"
 
-#define DEFAULT_HOST   "localhost"
-#define DEFAULT_PORT   9876
-#define PROMPT_MAX_LEN 63
+#define DEFAULT_HOST    "localhost"
+#define DEFAULT_PORT    9876
+#define COMMAND_MAX_LEN 1023
+#define PROMPT_MAX_LEN  63
 
 static inline redisContext *connect(const char *host, int port);
 static inline void print_reply(redisReply *reply);
@@ -78,17 +79,15 @@ int main(int argc, const char *argv[])
   char prompt[PROMPT_MAX_LEN + 1];
   snprintf(prompt, PROMPT_MAX_LEN, "%s:%d> ", host, port);
 
-  char *command;
-  while((command = linenoise(prompt)))
-  {  
+  char command[COMMAND_MAX_LEN + 1];
+
+  while (crossline_readline(prompt, command, COMMAND_MAX_LEN))
+  {
+    if (!strlen(command))
+      continue;
+
     if (!strcmp(command, "exit") || !strcmp(command, "quit"))
       break;
-
-    if (!strcmp(command, "clear"))
-    {
-      linenoiseClearScreen();
-      continue;
-    }
 
     redisReply *reply = redisCommand(ctx, command);
     if (!reply)
@@ -100,9 +99,6 @@ int main(int argc, const char *argv[])
     print_reply(reply);
     printf("\n");
     freeReplyObject(reply);
-  
-    linenoiseHistoryAdd(command);
-    linenoiseFree(command);
   }
 
   redisFree(ctx);

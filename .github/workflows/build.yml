@@ -41,3 +41,21 @@ jobs:
     - name: Build
       run: |
         cmake --build ${{ github.workspace }}/build
+
+  windows-build:
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Installing dependencies
+      run: |
+        git clone https://github.com/Microsoft/vcpkg.git
+        cd vcpkg
+        bootstrap-vcpkg.bat
+        vcpkg integrate install
+        vcpkg install hiredis:x64-windows
+    - name: Configure CMake
+      run: |
+        cmake -B ${{ github.workspace }}/build -S . -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+    - name: Build
+      run: |
+        cmake --build ${{ github.workspace }}/build
