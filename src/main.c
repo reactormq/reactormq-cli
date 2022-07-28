@@ -9,7 +9,7 @@
 #include <hiredis/hiredis.h>
 #include "../deps/crossline.h"
 
-#define DEFAULT_HOST    "localhost"
+#define DEFAULT_HOST    "127.0.0.1"
 #define DEFAULT_PORT    9876
 #define COMMAND_MAX_LEN 1023
 #define PROMPT_MAX_LEN  63
@@ -47,8 +47,8 @@ static inline void print_reply(redisReply *reply)
   case REDIS_REPLY_ARRAY:
     {
       printf("[");
-      int count = reply->elements;
-      for (int i = 0; i < count; ++i)
+      size_t count = reply->elements;
+      for (size_t i = 0; i < count; ++i)
       {
         if (i > 0)
           printf(", ");
