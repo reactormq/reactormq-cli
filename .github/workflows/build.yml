@@ -16,8 +16,10 @@ jobs:
     - uses: actions/checkout@v2
     - name: Installing dependencies
       run: |
-        sudo apt-get update -y
-        sudo apt-get install -y libhiredis-dev
+        git clone https://github.com/redis/hiredis.git
+        cd hiredis
+        make
+        sudo make install
     - name: Configure CMake
       run: |
         cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug
@@ -34,7 +36,7 @@ jobs:
         git clone https://github.com/redis/hiredis.git
         cd hiredis
         make
-        sudo make install
+        make install
     - name: Configure CMake
       run: |
         cmake -B ${{ github.workspace }}/build -DCMAKE_BUILD_TYPE=Debug
@@ -48,14 +50,14 @@ jobs:
     - uses: actions/checkout@v2
     - name: Installing dependencies
       run: |
-        git clone https://github.com/Microsoft/vcpkg.git
-        cd vcpkg
-        bootstrap-vcpkg.bat
-        vcpkg integrate install
-        vcpkg install hiredis:x64-windows
+        git clone https://github.com/redis/hiredis.git
+        cd hiredis
+        cmake -B build
+        cmake --build build --config Release
+        cmake --install build
     - name: Configure CMake
       run: |
-        cmake -B ${{ github.workspace }}/build -S . -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+        cmake -B ${{ github.workspace }}/build
     - name: Build
       run: |
-        cmake --build ${{ github.workspace }}/build
+        cmake --build ${{ github.workspace }}/build --config Debug

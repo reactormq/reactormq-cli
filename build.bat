@@ -1,3 +1,5 @@
 
-cmake -B build -DCMAKE_TOOLCHAIN_FILE=%HOMEDRIVE%%HOMEPATH%\vcpkg\scripts\buildsystems\vcpkg.cmake
-cmake --build build
+@echo off
+
+cmake -B build
+cmake --build build --config Debug

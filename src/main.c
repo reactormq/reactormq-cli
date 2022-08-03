@@ -39,10 +39,7 @@ static inline void print_reply(redisReply *reply)
   {
   case REDIS_REPLY_STRING:
   case REDIS_REPLY_STATUS:
-    printf("\"%s\"", reply->str);
-    break;
-  case REDIS_REPLY_ERROR:
-    printf("(error) %s", reply->str);
+    printf("\"%.*s\"", (int) reply->len, reply->str);
     break;
   case REDIS_REPLY_ARRAY:
     {
@@ -61,10 +58,34 @@ static inline void print_reply(redisReply *reply)
     printf("%lld", reply->integer);
     break;
   case REDIS_REPLY_NIL:
-    printf("nil");
+    printf("null");
+    break;
+  case REDIS_REPLY_ERROR:
+    printf("(error) %.*s", (int) reply->len, reply->str);
+    break;
+  case REDIS_REPLY_DOUBLE:
+    printf("%f", reply->dval);
+    break;
+  case REDIS_REPLY_BOOL:
+    printf("%s", reply->integer ? "true" : "false");
+    break;
+  case REDIS_REPLY_MAP:
+    {
+      printf("{");
+      size_t count = reply->elements;
+      for (size_t i = 0; i < count; i += 2)
+      {
+        if (i > 0)
+          printf(", ");
+        print_reply(reply->element[i]);
+        printf(": ");
+        print_reply(reply->element[i + 1]);
+      }
+      printf("}");
+    }
     break;
   default:
-    fprintf(stderr, "Error: unknown reply type\n");
+    fprintf(stderr, "Error: unsupported reply type\n");
     exit(EXIT_FAILURE);
   }
 }

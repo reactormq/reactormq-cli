@@ -13,6 +13,11 @@ if(APPLE)
   link_directories(/usr/local/lib)
 endif()
 
+if (MSVC)
+  include_directories("C:/Program Files (x86)/hiredis/include")
+  link_directories("C:/Program Files (x86)/hiredis/lib")
+endif()
+
 set(BINARY_DIR ${CMAKE_BINARY_DIR}/../bin)
 set(PACKAGE_DIR ${CMAKE_BINARY_DIR}/../package)
 
@@ -21,10 +26,6 @@ if(MSVC)
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${BINARY_DIR})
 else()
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BINARY_DIR})
-endif()
-
-if(MSVC)
-  find_package(hiredis CONFIG REQUIRED)
 endif()
 
 add_executable(${PROJECT_NAME}
@@ -37,11 +38,7 @@ else()
   target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-if(MSVC)
-  target_link_libraries(${PROJECT_NAME} PRIVATE hiredis::hiredis)
-else()
-  target_link_libraries(${PROJECT_NAME} hiredis)
-endif()
+target_link_libraries(${PROJECT_NAME} hiredis)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
